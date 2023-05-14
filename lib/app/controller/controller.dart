@@ -170,29 +170,37 @@ class LocationController extends GetxController {
 
   Future<void> getLocationByName(String query) async {
     debugPrint("getLocationByName");
-    isLoading.value = true;
-    try {
-      _locationResponse.value = (await WeatherAPI().getWeatherByName(query))!;
-    } catch (e) {
-      print("Controller dio error");
+    if (await isDeviceConnectedNotifier.value) {
+      isLoading.value = true;
+      try {
+        _locationResponse.value = (await WeatherAPI().getWeatherByName(query))!;
+      } catch (e) {
+        print("Controller dio error");
+        isLoading.value = false;
+      }
       isLoading.value = false;
+    } else {
+      showSnackbar(
+          'No Internet', 'Turn on the Internet to get meteorological data.');
     }
-    isLoading.value = false;
   }
 
   Future<List<SearchResponse>> getSuggestions(String query) async {
-    debugPrint("getSuggestions query ${query.trim().length}");
-
-    try {
-      if (query.trim().isNotEmpty) {
-        // isLoading.value = true;
-        _searchList.value = (await WeatherAPI().searchPlaces(query))!;
+    if (await isDeviceConnectedNotifier.value) {
+      try {
+        if (query.trim().isNotEmpty) {
+          // isLoading.value = true;
+          _searchList.value = (await WeatherAPI().searchPlaces(query))!;
+          isLoading.value = false;
+          debugPrint("searchPlaces length ${searchList.length}");
+        }
+        return searchList;
+      } catch (e) {
         isLoading.value = false;
-        debugPrint("searchPlaces length ${searchList.length}");
       }
-      return searchList;
-    } catch (e) {
-      isLoading.value = false;
+    } else {
+      showSnackbar(
+          'No Internet', 'Turn on the Internet to get meteorological data.');
     }
     return [];
   }
