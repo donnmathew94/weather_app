@@ -1,21 +1,26 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class Status {
-  String getImageNow(
-      int weather, int isDay) {
-    // final isDay = isDay;
-    // final day = DateTime.parse(timeDay);
-    // final night = DateTime.parse(timeNight);
-    //
-    // final dayTime =
-    //     DateTime(day.year, day.month, day.day, day.hour, day.minute);
-    // final nightTime =
-    //     DateTime(night.year, night.month, night.day, night.hour, night.minute);
+  String getImageNow(String weather, int isDay) {
+
+    var weatherIcon = "assets/images/clear.png";
+    try {
+      weatherIcon =
+          "assets/images/${weather.replaceAll(' ', '').toLowerCase()}.png";
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+
+    return weatherIcon;
 
     print(" Weather image code $weather");
     switch (weather) {
       case 0:
-        if (isDay==1) {
+        if (isDay == 1) {
           return 'assets/images/sun.png';
         } else {
           return 'assets/images/full-moon.png';
@@ -23,15 +28,15 @@ class Status {
       case 1:
       case 2:
       case 3:
-        if (isDay==1) {
-          return 'assets/images/cloud.png';
+        if (isDay == 1) {
+          return 'assets/images/clear.png';
         } else {
           return 'assets/images/moon.png';
         }
       case 45:
       case 48:
-        if (isDay==1) {
-          return 'assets/images/fog.png';
+        if (isDay == 1) {
+          return 'assets/images/mist.png';
         } else {
           return 'assets/images/fog_moon.png';
         }
@@ -73,10 +78,10 @@ class Status {
       case 1:
       case 2:
       case 3:
-        return 'assets/images/cloud.png';
+        return 'assets/images/clear.png';
       case 45:
       case 48:
-        return 'assets/images/fog.png';
+        return 'assets/images/mist.png';
       case 51:
       case 53:
       case 55:

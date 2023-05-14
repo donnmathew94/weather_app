@@ -38,8 +38,8 @@ class _WeatherPageState extends State<WeatherPage> {
                     ? WeatherNow(
                         time:
                             "${DateTime.fromMillisecondsSinceEpoch(locationController.locationResponse.location!.localtimeEpoch!.toInt() * 1000)}",
-                        weather: getStatus(locationController
-                            .locationResponse.current?.condition!.text),
+                        weather:locationController
+                            .locationResponse.current?.condition!.text??"clear",
                         degree: locationController.degreeUnit == "celsius"
                             ? "${locationController.locationResponse.current?.tempC?.toInt()}°C"
                             : "${locationController.locationResponse.current?.tempF?.toInt()}°F",
@@ -93,8 +93,11 @@ getStatus(String? text) {
   if (text!.toLowerCase().contains("cloudy")) {
     return 2;
   }
-  if (text!.toLowerCase().contains("mist")) {
+  if (text.toLowerCase().contains("mist")) {
     return 48;
+  }
+  if (text.toLowerCase().contains("sunny")) {
+    return 0;
   }
   return 1;
 }

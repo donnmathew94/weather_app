@@ -14,7 +14,7 @@ class WeatherNow extends StatefulWidget {
       required this.condition});
 
   final String time;
-  final int weather;
+  final String weather;
   final int isDay;
   final String degree;
   final String condition;
@@ -33,11 +33,17 @@ class _WeatherNowState extends State<WeatherNow> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 15),
-        Image(
-          image: AssetImage(status.getImageNow(widget.weather, widget.isDay)),
-          fit: BoxFit.fill,
+        Image.asset(
+          status.getImageNow(widget.weather, widget.isDay),
           height: 200,
+          errorBuilder: (context, error, stackTrace) {
+            return Image.asset(
+              "assets/images/clear.png",
+              height: 200,
+            );
+          },
         ),
+
         GlowText(
           widget.degree,
           style: context.theme.textTheme.displayLarge?.copyWith(
