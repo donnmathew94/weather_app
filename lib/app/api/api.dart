@@ -12,7 +12,6 @@ class WeatherAPI {
   final Dio dio = Dio()..options.baseUrl = 'http://api.weatherapi.com/v1/';
 
   Future<LocationResponse?> getWeatherData(double? lat, double? lon) async {
-    print("getWeatherData");
     try {
       var forecastUrl = "forecast.json?key=$API_KEY&days=4&q=$lat,$lon&aqi=no";
 

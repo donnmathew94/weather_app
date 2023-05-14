@@ -1,9 +1,11 @@
 import 'package:custom_navigation_bar/custom_navigation_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:weather_app/app/controller/controller.dart';
 import 'package:weather_app/app/modules/settings.dart';
+import 'package:weather_app/main.dart';
 import 'package:weather_app/models/search_response.dart';
 import 'package:weather_app/widgets/weather.dart';
 
@@ -22,27 +24,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    getData();
+    if (kDebugMode) {
+      print("initState defaultLocation $settings.defaultLocation");
+    }
+    getLocationByPreference();
     super.initState();
   }
 
-  void getData() async {
-    await locationController.setLocation();
+  void getLocationByPreference() async {
+    debugPrint("getLocationByPreference");
+    await locationController.getLocationByPreference();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() =>
-            Text(locationController.locationResponse.location?.name ?? "")),
+        title: Obx(() => Text(
+            "${locationController.locationResponse.location?.name ?? ""},${locationController.locationResponse.location?.region ?? ""}")),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () async {
               final result = await showSearch<String>(
                 context: context,
-                delegate: DataSearch(locationController),
+                delegate: DataSearch(locationController, [
+                  SearchResponse(name: 'Thiruvananthapuram'),
+                  SearchResponse(name: 'New Delhi'),
+                  SearchResponse(name: 'Bangalore'),
+                ]),
               );
               if (result != null) {
                 await locationController.getLocationByName(result);
@@ -59,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: IconButton(
           icon: const Icon(Icons.location_on_sharp),
           onPressed: () async {
-            await locationController.setLocation();
+            await locationController.getLocationByGps();
           },
         ),
       ),
@@ -105,14 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
 class DataSearch extends SearchDelegate<String> {
   final List<String> data = [];
   LocationController locationController;
+  List<SearchResponse> suggestions = [];
 
-  List<SearchResponse> suggestions = [
-    SearchResponse(name: 'Thiruvananthapuram'),
-    SearchResponse(name: 'Delhi'),
-    SearchResponse(name: 'Bangalore'),
-  ];
-
-  DataSearch(this.locationController);
+  DataSearch(this.locationController, this.suggestions);
 
   @override
   List<Widget> buildActions(BuildContext context) {

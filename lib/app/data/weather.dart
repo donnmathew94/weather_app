@@ -10,6 +10,7 @@ class Settings {
   bool materialColor = false;
   String measurements = 'metric';
   String degrees = 'celsius';
+  String defaultLocation = 'gps';
   String timeformat = '24';
 }
 

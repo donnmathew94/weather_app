@@ -34,11 +34,20 @@ class LocationController extends GetxController {
 
   String get city => _city.value;
 
-  Future<void> setLocation() async {
+  Future<void> getLocationByGps() async {
     isLoading.value = true;
-    debugPrint("setLocation");
+    debugPrint("getLocationByGps");
     _degreeUnit.value = settings.degrees;
-    await getCurrentLocation();
+    await _getCurrentLocation();
+  }
+
+  getLocationByPreference() {
+    if (settings.defaultLocation.toLowerCase() == "gps" ||
+        settings.defaultLocation == "") {
+      getLocationByGps();
+    } else {
+      getLocationByName(settings.defaultLocation);
+    }
   }
 
   Future<Position> determinePosition() async {
@@ -69,8 +78,8 @@ class LocationController extends GetxController {
         desiredAccuracy: LocationAccuracy.high);
   }
 
-  Future<void> getCurrentLocation() async {
-    debugPrint("getCurrentLocation");
+  Future<void> _getCurrentLocation() async {
+    debugPrint("Getting lat long from gps");
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (await isDeviceConnectedNotifier.value && serviceEnabled) {
@@ -82,7 +91,7 @@ class LocationController extends GetxController {
       _longitude.value = position.longitude;
       _district.value = '${place.administrativeArea}';
       _city.value = '${place.locality}';
-      getLocationApi(position.latitude, position.longitude);
+      _getLocationApi(position.latitude, position.longitude);
     } else if (!await isDeviceConnectedNotifier.value && serviceEnabled) {
       debugPrint("Service not available");
       Get.snackbar(
@@ -96,7 +105,7 @@ class LocationController extends GetxController {
         mainButton: TextButton(
           child: const Text('Retry'),
           onPressed: () {
-            setLocation();
+            getLocationByGps();
             Get.back();
           },
         ),
@@ -129,7 +138,7 @@ class LocationController extends GetxController {
         mainButton: TextButton(
           child: const Text('Retry'),
           onPressed: () {
-            setLocation();
+            getLocationByGps();
             Get.back();
           },
         ),
@@ -152,8 +161,7 @@ class LocationController extends GetxController {
     }
   }
 
-  Future<void> getLocationApi(double latitude, double longitude) async {
-    debugPrint("getLocationApi");
+  Future<void> _getLocationApi(double latitude, double longitude) async {
     isLoading.value = true;
     _locationResponse.value =
         (await WeatherAPI().getWeatherData(_latitude.value, _longitude.value))!;
@@ -163,7 +171,12 @@ class LocationController extends GetxController {
   Future<void> getLocationByName(String query) async {
     debugPrint("getLocationByName");
     isLoading.value = true;
-    _locationResponse.value = (await WeatherAPI().getWeatherByName(query))!;
+    try {
+      _locationResponse.value = (await WeatherAPI().getWeatherByName(query))!;
+    } catch (e) {
+      print("Controller dio error");
+      isLoading.value = false;
+    }
     isLoading.value = false;
   }
 
@@ -182,5 +195,17 @@ class LocationController extends GetxController {
       isLoading.value = false;
     }
     return [];
+  }
+
+  showSnackbar(title, description) {
+    Get.snackbar(
+      title,
+      description,
+      duration: const Duration(seconds: 5),
+      icon: const Icon(Iconsax.location_slash),
+      shouldIconPulse: true,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.only(bottom: 10, left: 5, right: 5),
+    );
   }
 }

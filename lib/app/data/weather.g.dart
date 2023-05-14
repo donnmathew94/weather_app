@@ -17,43 +17,48 @@ const SettingsSchema = CollectionSchema(
   name: r'Settings',
   id: -8656046621518759136,
   properties: {
-    r'degrees': PropertySchema(
+    r'defaultLocation': PropertySchema(
       id: 0,
+      name: r'defaultLocation',
+      type: IsarType.string,
+    ),
+    r'degrees': PropertySchema(
+      id: 1,
       name: r'degrees',
       type: IsarType.string,
     ),
     r'location': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'location',
       type: IsarType.bool,
     ),
     r'materialColor': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'materialColor',
       type: IsarType.bool,
     ),
     r'measurements': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'measurements',
       type: IsarType.string,
     ),
     r'notifications': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'notifications',
       type: IsarType.bool,
     ),
     r'onboard': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'onboard',
       type: IsarType.bool,
     ),
     r'theme': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'theme',
       type: IsarType.bool,
     ),
     r'timeformat': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'timeformat',
       type: IsarType.string,
     )
@@ -73,11 +78,12 @@ const SettingsSchema = CollectionSchema(
 );
 
 int _settingsEstimateSize(
-    Settings object,
-    List<int> offsets,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  Settings object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.defaultLocation.length * 3;
   bytesCount += 3 + object.degrees.length * 3;
   bytesCount += 3 + object.measurements.length * 3;
   bytesCount += 3 + object.timeformat.length * 3;
@@ -85,62 +91,66 @@ int _settingsEstimateSize(
 }
 
 void _settingsSerialize(
-    Settings object,
-    IsarWriter writer,
-    List<int> offsets,
-    Map<Type, List<int>> allOffsets,
-    ) {
-  writer.writeString(offsets[0], object.degrees);
-  writer.writeBool(offsets[1], object.location);
-  writer.writeBool(offsets[2], object.materialColor);
-  writer.writeString(offsets[3], object.measurements);
-  writer.writeBool(offsets[4], object.notifications);
-  writer.writeBool(offsets[5], object.onboard);
-  writer.writeBool(offsets[6], object.theme);
-  writer.writeString(offsets[7], object.timeformat);
+  Settings object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeString(offsets[0], object.defaultLocation);
+  writer.writeString(offsets[1], object.degrees);
+  writer.writeBool(offsets[2], object.location);
+  writer.writeBool(offsets[3], object.materialColor);
+  writer.writeString(offsets[4], object.measurements);
+  writer.writeBool(offsets[5], object.notifications);
+  writer.writeBool(offsets[6], object.onboard);
+  writer.writeBool(offsets[7], object.theme);
+  writer.writeString(offsets[8], object.timeformat);
 }
 
 Settings _settingsDeserialize(
-    Id id,
-    IsarReader reader,
-    List<int> offsets,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
   final object = Settings();
-  object.degrees = reader.readString(offsets[0]);
+  object.defaultLocation = reader.readString(offsets[0]);
+  object.degrees = reader.readString(offsets[1]);
   object.id = id;
-  object.location = reader.readBool(offsets[1]);
-  object.materialColor = reader.readBool(offsets[2]);
-  object.measurements = reader.readString(offsets[3]);
-  object.notifications = reader.readBool(offsets[4]);
-  object.onboard = reader.readBool(offsets[5]);
-  object.theme = reader.readBoolOrNull(offsets[6]);
-  object.timeformat = reader.readString(offsets[7]);
+  object.location = reader.readBool(offsets[2]);
+  object.materialColor = reader.readBool(offsets[3]);
+  object.measurements = reader.readString(offsets[4]);
+  object.notifications = reader.readBool(offsets[5]);
+  object.onboard = reader.readBool(offsets[6]);
+  object.theme = reader.readBoolOrNull(offsets[7]);
+  object.timeformat = reader.readString(offsets[8]);
   return object;
 }
 
 P _settingsDeserializeProp<P>(
-    IsarReader reader,
-    int propertyId,
-    int offset,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
   switch (propertyId) {
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
-    case 4:
       return (reader.readBool(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
     case 5:
       return (reader.readBool(offset)) as P;
     case 6:
-      return (reader.readBoolOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
+      return (reader.readBoolOrNull(offset)) as P;
+    case 8:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -182,19 +192,19 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-          IdWhereClause.lessThan(upper: id, includeUpper: false),
-        )
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
             .addWhereClause(
-          IdWhereClause.greaterThan(lower: id, includeLower: false),
-        );
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
       } else {
         return query
             .addWhereClause(
-          IdWhereClause.greaterThan(lower: id, includeLower: false),
-        )
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
             .addWhereClause(
-          IdWhereClause.lessThan(upper: id, includeUpper: false),
-        );
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
       }
     });
   }
@@ -218,11 +228,11 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
   }
 
   QueryBuilder<Settings, Settings, QAfterWhereClause> idBetween(
-      Id lowerId,
-      Id upperId, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: lowerId,
@@ -235,11 +245,147 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
 }
 
 extension SettingsQueryFilter
-on QueryBuilder<Settings, Settings, QFilterCondition> {
+    on QueryBuilder<Settings, Settings, QFilterCondition> {
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'defaultLocation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'defaultLocation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'defaultLocation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'defaultLocation',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'defaultLocation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'defaultLocation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'defaultLocation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'defaultLocation',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'defaultLocation',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      defaultLocationIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'defaultLocation',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> degreesEqualTo(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'degrees',
@@ -250,10 +396,10 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> degreesGreaterThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -265,10 +411,10 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> degreesLessThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -280,12 +426,12 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> degreesBetween(
-      String lower,
-      String upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'degrees',
@@ -299,9 +445,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> degreesStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'degrees',
@@ -312,9 +458,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> degreesEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'degrees',
@@ -376,9 +522,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> idGreaterThan(
-      Id value, {
-        bool include = false,
-      }) {
+    Id value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -389,9 +535,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> idLessThan(
-      Id value, {
-        bool include = false,
-      }) {
+    Id value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -402,11 +548,11 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> idBetween(
-      Id lower,
-      Id upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'id',
@@ -439,9 +585,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> measurementsEqualTo(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'measurements',
@@ -452,11 +598,11 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-  measurementsGreaterThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      measurementsGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -468,10 +614,10 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> measurementsLessThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -483,12 +629,12 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> measurementsBetween(
-      String lower,
-      String upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'measurements',
@@ -502,10 +648,10 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-  measurementsStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      measurementsStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'measurements',
@@ -516,9 +662,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> measurementsEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'measurements',
@@ -553,7 +699,7 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-  measurementsIsEmpty() {
+      measurementsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'measurements',
@@ -563,7 +709,7 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-  measurementsIsNotEmpty() {
+      measurementsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'measurements',
@@ -619,9 +765,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> timeformatEqualTo(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'timeformat',
@@ -632,10 +778,10 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> timeformatGreaterThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -647,10 +793,10 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> timeformatLessThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -662,12 +808,12 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> timeformatBetween(
-      String lower,
-      String upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'timeformat',
@@ -681,9 +827,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> timeformatStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'timeformat',
@@ -694,9 +840,9 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> timeformatEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'timeformat',
@@ -740,7 +886,7 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-  timeformatIsNotEmpty() {
+      timeformatIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'timeformat',
@@ -751,12 +897,24 @@ on QueryBuilder<Settings, Settings, QFilterCondition> {
 }
 
 extension SettingsQueryObject
-on QueryBuilder<Settings, Settings, QFilterCondition> {}
+    on QueryBuilder<Settings, Settings, QFilterCondition> {}
 
 extension SettingsQueryLinks
-on QueryBuilder<Settings, Settings, QFilterCondition> {}
+    on QueryBuilder<Settings, Settings, QFilterCondition> {}
 
 extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDefaultLocation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultLocation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByDefaultLocationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultLocation', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByDegrees() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'degrees', Sort.asc);
@@ -855,7 +1013,19 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
 }
 
 extension SettingsQuerySortThenBy
-on QueryBuilder<Settings, Settings, QSortThenBy> {
+    on QueryBuilder<Settings, Settings, QSortThenBy> {
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDefaultLocation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultLocation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByDefaultLocationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultLocation', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByDegrees() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'degrees', Sort.asc);
@@ -966,7 +1136,15 @@ on QueryBuilder<Settings, Settings, QSortThenBy> {
 }
 
 extension SettingsQueryWhereDistinct
-on QueryBuilder<Settings, Settings, QDistinct> {
+    on QueryBuilder<Settings, Settings, QDistinct> {
+  QueryBuilder<Settings, Settings, QDistinct> distinctByDefaultLocation(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'defaultLocation',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByDegrees(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1020,10 +1198,16 @@ on QueryBuilder<Settings, Settings, QDistinct> {
 }
 
 extension SettingsQueryProperty
-on QueryBuilder<Settings, Settings, QQueryProperty> {
+    on QueryBuilder<Settings, Settings, QQueryProperty> {
   QueryBuilder<Settings, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Settings, String, QQueryOperations> defaultLocationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'defaultLocation');
     });
   }
 
@@ -1075,10 +1259,6 @@ on QueryBuilder<Settings, Settings, QQueryProperty> {
     });
   }
 }
-
-// coverage:ignore-file
-// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
-
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
@@ -1287,10 +1467,10 @@ const WeatherCardSchema = CollectionSchema(
 );
 
 int _weatherCardEstimateSize(
-    WeatherCard object,
-    List<int> offsets,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  WeatherCard object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
   var bytesCount = offsets.last;
   {
     final value = object.apparentTemperature;
@@ -1512,11 +1692,11 @@ int _weatherCardEstimateSize(
 }
 
 void _weatherCardSerialize(
-    WeatherCard object,
-    IsarWriter writer,
-    List<int> offsets,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  WeatherCard object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
   writer.writeDoubleList(offsets[0], object.apparentTemperature);
   writer.writeDoubleList(offsets[1], object.apparentTemperatureMax);
   writer.writeDoubleList(offsets[2], object.apparentTemperatureMin);
@@ -1556,11 +1736,11 @@ void _weatherCardSerialize(
 }
 
 WeatherCard _weatherCardDeserialize(
-    Id id,
-    IsarReader reader,
-    List<int> offsets,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
   final object = WeatherCard(
     apparentTemperature: reader.readDoubleList(offsets[0]),
     apparentTemperatureMax: reader.readDoubleList(offsets[1]),
@@ -1604,11 +1784,11 @@ WeatherCard _weatherCardDeserialize(
 }
 
 P _weatherCardDeserializeProp<P>(
-    IsarReader reader,
-    int propertyId,
-    int offset,
-    Map<Type, List<int>> allOffsets,
-    ) {
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
   switch (propertyId) {
     case 0:
       return (reader.readDoubleList(offset)) as P;
@@ -1701,7 +1881,7 @@ void _weatherCardAttach(
 }
 
 extension WeatherCardQueryWhereSort
-on QueryBuilder<WeatherCard, WeatherCard, QWhere> {
+    on QueryBuilder<WeatherCard, WeatherCard, QWhere> {
   QueryBuilder<WeatherCard, WeatherCard, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
@@ -1710,7 +1890,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QWhere> {
 }
 
 extension WeatherCardQueryWhere
-on QueryBuilder<WeatherCard, WeatherCard, QWhereClause> {
+    on QueryBuilder<WeatherCard, WeatherCard, QWhereClause> {
   QueryBuilder<WeatherCard, WeatherCard, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
@@ -1726,19 +1906,19 @@ on QueryBuilder<WeatherCard, WeatherCard, QWhereClause> {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-          IdWhereClause.lessThan(upper: id, includeUpper: false),
-        )
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            )
             .addWhereClause(
-          IdWhereClause.greaterThan(lower: id, includeLower: false),
-        );
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            );
       } else {
         return query
             .addWhereClause(
-          IdWhereClause.greaterThan(lower: id, includeLower: false),
-        )
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
+            )
             .addWhereClause(
-          IdWhereClause.lessThan(upper: id, includeUpper: false),
-        );
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
+            );
       }
     });
   }
@@ -1762,11 +1942,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QWhereClause> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterWhereClause> idBetween(
-      Id lowerId,
-      Id upperId, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+    Id lowerId,
+    Id upperId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: lowerId,
@@ -1779,9 +1959,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QWhereClause> {
 }
 
 extension WeatherCardQueryFilter
-on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
+    on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureIsNull() {
+      apparentTemperatureIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'apparentTemperature',
@@ -1790,7 +1970,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureIsNotNull() {
+      apparentTemperatureIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'apparentTemperature',
@@ -1799,10 +1979,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'apparentTemperature',
@@ -1813,11 +1993,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -1829,11 +2009,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -1845,13 +2025,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'apparentTemperature',
@@ -1865,7 +2045,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureLengthEqualTo(int length) {
+      apparentTemperatureLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperature',
@@ -1878,7 +2058,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureIsEmpty() {
+      apparentTemperatureIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperature',
@@ -1891,7 +2071,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureIsNotEmpty() {
+      apparentTemperatureIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperature',
@@ -1904,10 +2084,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      apparentTemperatureLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperature',
@@ -1920,10 +2100,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      apparentTemperatureLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperature',
@@ -1936,12 +2116,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      apparentTemperatureLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperature',
@@ -1954,7 +2134,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxIsNull() {
+      apparentTemperatureMaxIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'apparentTemperatureMax',
@@ -1963,7 +2143,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxIsNotNull() {
+      apparentTemperatureMaxIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'apparentTemperatureMax',
@@ -1972,10 +2152,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMaxElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'apparentTemperatureMax',
@@ -1986,11 +2166,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMaxElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2002,11 +2182,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMaxElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2018,13 +2198,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMaxElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'apparentTemperatureMax',
@@ -2038,7 +2218,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxLengthEqualTo(int length) {
+      apparentTemperatureMaxLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMax',
@@ -2051,7 +2231,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxIsEmpty() {
+      apparentTemperatureMaxIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMax',
@@ -2064,7 +2244,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxIsNotEmpty() {
+      apparentTemperatureMaxIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMax',
@@ -2077,10 +2257,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      apparentTemperatureMaxLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMax',
@@ -2093,10 +2273,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      apparentTemperatureMaxLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMax',
@@ -2109,12 +2289,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMaxLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      apparentTemperatureMaxLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMax',
@@ -2127,7 +2307,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinIsNull() {
+      apparentTemperatureMinIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'apparentTemperatureMin',
@@ -2136,7 +2316,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinIsNotNull() {
+      apparentTemperatureMinIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'apparentTemperatureMin',
@@ -2145,10 +2325,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMinElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'apparentTemperatureMin',
@@ -2159,11 +2339,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMinElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2175,11 +2355,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMinElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2191,13 +2371,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      apparentTemperatureMinElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'apparentTemperatureMin',
@@ -2211,7 +2391,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinLengthEqualTo(int length) {
+      apparentTemperatureMinLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMin',
@@ -2224,7 +2404,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinIsEmpty() {
+      apparentTemperatureMinIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMin',
@@ -2237,7 +2417,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinIsNotEmpty() {
+      apparentTemperatureMinIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMin',
@@ -2250,10 +2430,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      apparentTemperatureMinLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMin',
@@ -2266,10 +2446,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      apparentTemperatureMinLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMin',
@@ -2282,12 +2462,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  apparentTemperatureMinLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      apparentTemperatureMinLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'apparentTemperatureMin',
@@ -2308,7 +2488,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cityIsNotNull() {
+      cityIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'city',
@@ -2317,9 +2497,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> cityEqualTo(
-      String? value, {
-        bool caseSensitive = true,
-      }) {
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'city',
@@ -2330,10 +2510,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> cityGreaterThan(
-      String? value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2345,10 +2525,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> cityLessThan(
-      String? value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2360,12 +2540,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> cityBetween(
-      String? lower,
-      String? upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'city',
@@ -2379,9 +2559,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> cityStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'city',
@@ -2392,9 +2572,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> cityEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'city',
@@ -2438,7 +2618,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cityIsNotEmpty() {
+      cityIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'city',
@@ -2448,7 +2628,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverIsNull() {
+      cloudcoverIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'cloudcover',
@@ -2457,7 +2637,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverIsNotNull() {
+      cloudcoverIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'cloudcover',
@@ -2466,7 +2646,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverElementEqualTo(int value) {
+      cloudcoverElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'cloudcover',
@@ -2476,10 +2656,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      cloudcoverElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2490,10 +2670,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      cloudcoverElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2504,12 +2684,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      cloudcoverElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'cloudcover',
@@ -2522,7 +2702,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverLengthEqualTo(int length) {
+      cloudcoverLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'cloudcover',
@@ -2535,7 +2715,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverIsEmpty() {
+      cloudcoverIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'cloudcover',
@@ -2548,7 +2728,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverIsNotEmpty() {
+      cloudcoverIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'cloudcover',
@@ -2561,10 +2741,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      cloudcoverLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'cloudcover',
@@ -2577,10 +2757,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      cloudcoverLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'cloudcover',
@@ -2593,12 +2773,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  cloudcoverLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      cloudcoverLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'cloudcover',
@@ -2611,7 +2791,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtIsNull() {
+      districtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'district',
@@ -2620,7 +2800,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtIsNotNull() {
+      districtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'district',
@@ -2629,9 +2809,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> districtEqualTo(
-      String? value, {
-        bool caseSensitive = true,
-      }) {
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'district',
@@ -2642,11 +2822,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtGreaterThan(
-      String? value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      districtGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2658,11 +2838,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtLessThan(
-      String? value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      districtLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2674,12 +2854,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> districtBetween(
-      String? lower,
-      String? upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'district',
@@ -2693,10 +2873,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      districtStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'district',
@@ -2707,10 +2887,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      districtEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'district',
@@ -2721,7 +2901,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtContains(String value, {bool caseSensitive = true}) {
+      districtContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'district',
@@ -2744,7 +2924,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtIsEmpty() {
+      districtIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'district',
@@ -2754,7 +2934,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  districtIsNotEmpty() {
+      districtIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'district',
@@ -2764,7 +2944,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationIsNull() {
+      evapotranspirationIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'evapotranspiration',
@@ -2773,7 +2953,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationIsNotNull() {
+      evapotranspirationIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'evapotranspiration',
@@ -2782,10 +2962,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      evapotranspirationElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'evapotranspiration',
@@ -2796,11 +2976,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      evapotranspirationElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2812,11 +2992,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      evapotranspirationElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2828,13 +3008,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      evapotranspirationElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'evapotranspiration',
@@ -2848,7 +3028,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationLengthEqualTo(int length) {
+      evapotranspirationLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'evapotranspiration',
@@ -2861,7 +3041,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationIsEmpty() {
+      evapotranspirationIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'evapotranspiration',
@@ -2874,7 +3054,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationIsNotEmpty() {
+      evapotranspirationIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'evapotranspiration',
@@ -2887,10 +3067,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      evapotranspirationLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'evapotranspiration',
@@ -2903,10 +3083,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      evapotranspirationLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'evapotranspiration',
@@ -2919,12 +3099,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  evapotranspirationLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      evapotranspirationLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'evapotranspiration',
@@ -2947,9 +3127,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> idGreaterThan(
-      Id value, {
-        bool include = false,
-      }) {
+    Id value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -2960,9 +3140,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> idLessThan(
-      Id value, {
-        bool include = false,
-      }) {
+    Id value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -2973,11 +3153,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> idBetween(
-      Id lower,
-      Id upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+    Id lower,
+    Id upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'id',
@@ -3006,9 +3186,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> latEqualTo(
-      double? value, {
-        double epsilon = Query.epsilon,
-      }) {
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'lat',
@@ -3019,10 +3199,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> latGreaterThan(
-      double? value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3034,10 +3214,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> latLessThan(
-      double? value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3049,12 +3229,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> latBetween(
-      double? lower,
-      double? upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'lat',
@@ -3084,9 +3264,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> lonEqualTo(
-      double? value, {
-        double epsilon = Query.epsilon,
-      }) {
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'lon',
@@ -3097,10 +3277,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> lonGreaterThan(
-      double? value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3112,10 +3292,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> lonLessThan(
-      double? value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3127,12 +3307,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> lonBetween(
-      double? lower,
-      double? upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'lon',
@@ -3146,7 +3326,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationIsNull() {
+      precipitationIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'precipitation',
@@ -3155,7 +3335,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationIsNotNull() {
+      precipitationIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'precipitation',
@@ -3164,10 +3344,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'precipitation',
@@ -3178,11 +3358,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3194,11 +3374,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3210,13 +3390,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'precipitation',
@@ -3230,7 +3410,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationLengthEqualTo(int length) {
+      precipitationLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitation',
@@ -3243,7 +3423,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationIsEmpty() {
+      precipitationIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitation',
@@ -3256,7 +3436,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationIsNotEmpty() {
+      precipitationIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitation',
@@ -3269,10 +3449,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      precipitationLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitation',
@@ -3285,10 +3465,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      precipitationLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitation',
@@ -3301,12 +3481,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      precipitationLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitation',
@@ -3319,7 +3499,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxIsNull() {
+      precipitationProbabilityMaxIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'precipitationProbabilityMax',
@@ -3328,7 +3508,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxIsNotNull() {
+      precipitationProbabilityMaxIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'precipitationProbabilityMax',
@@ -3337,7 +3517,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxElementEqualTo(int value) {
+      precipitationProbabilityMaxElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'precipitationProbabilityMax',
@@ -3347,10 +3527,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      precipitationProbabilityMaxElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3361,10 +3541,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      precipitationProbabilityMaxElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3375,12 +3555,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      precipitationProbabilityMaxElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'precipitationProbabilityMax',
@@ -3393,7 +3573,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxLengthEqualTo(int length) {
+      precipitationProbabilityMaxLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationProbabilityMax',
@@ -3406,7 +3586,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxIsEmpty() {
+      precipitationProbabilityMaxIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationProbabilityMax',
@@ -3419,7 +3599,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxIsNotEmpty() {
+      precipitationProbabilityMaxIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationProbabilityMax',
@@ -3432,10 +3612,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      precipitationProbabilityMaxLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationProbabilityMax',
@@ -3448,10 +3628,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      precipitationProbabilityMaxLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationProbabilityMax',
@@ -3464,12 +3644,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationProbabilityMaxLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      precipitationProbabilityMaxLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationProbabilityMax',
@@ -3482,7 +3662,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumIsNull() {
+      precipitationSumIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'precipitationSum',
@@ -3491,7 +3671,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumIsNotNull() {
+      precipitationSumIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'precipitationSum',
@@ -3500,10 +3680,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationSumElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'precipitationSum',
@@ -3514,11 +3694,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationSumElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3530,11 +3710,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationSumElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3546,13 +3726,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      precipitationSumElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'precipitationSum',
@@ -3566,7 +3746,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumLengthEqualTo(int length) {
+      precipitationSumLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationSum',
@@ -3579,7 +3759,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumIsEmpty() {
+      precipitationSumIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationSum',
@@ -3592,7 +3772,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumIsNotEmpty() {
+      precipitationSumIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationSum',
@@ -3605,10 +3785,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      precipitationSumLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationSum',
@@ -3621,10 +3801,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      precipitationSumLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationSum',
@@ -3637,12 +3817,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  precipitationSumLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      precipitationSumLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'precipitationSum',
@@ -3663,7 +3843,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainIsNotNull() {
+      rainIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'rain',
@@ -3672,10 +3852,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      rainElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'rain',
@@ -3686,11 +3866,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      rainElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3702,11 +3882,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      rainElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3718,13 +3898,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      rainElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'rain',
@@ -3738,7 +3918,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainLengthEqualTo(int length) {
+      rainLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rain',
@@ -3763,7 +3943,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainIsNotEmpty() {
+      rainIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rain',
@@ -3776,10 +3956,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      rainLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rain',
@@ -3792,10 +3972,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      rainLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rain',
@@ -3808,12 +3988,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      rainLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rain',
@@ -3826,7 +4006,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumIsNull() {
+      rainSumIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'rainSum',
@@ -3835,7 +4015,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumIsNotNull() {
+      rainSumIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'rainSum',
@@ -3844,10 +4024,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      rainSumElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'rainSum',
@@ -3858,11 +4038,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      rainSumElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -3874,11 +4054,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      rainSumElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -3890,13 +4070,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      rainSumElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'rainSum',
@@ -3910,7 +4090,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumLengthEqualTo(int length) {
+      rainSumLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rainSum',
@@ -3923,7 +4103,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumIsEmpty() {
+      rainSumIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rainSum',
@@ -3936,7 +4116,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumIsNotEmpty() {
+      rainSumIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rainSum',
@@ -3949,10 +4129,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      rainSumLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rainSum',
@@ -3965,10 +4145,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      rainSumLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rainSum',
@@ -3981,12 +4161,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  rainSumLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      rainSumLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'rainSum',
@@ -3999,7 +4179,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MIsNull() {
+      relativehumidity2MIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'relativehumidity2M',
@@ -4008,7 +4188,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MIsNotNull() {
+      relativehumidity2MIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'relativehumidity2M',
@@ -4017,7 +4197,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MElementEqualTo(int value) {
+      relativehumidity2MElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'relativehumidity2M',
@@ -4027,10 +4207,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      relativehumidity2MElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -4041,10 +4221,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      relativehumidity2MElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -4055,12 +4235,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      relativehumidity2MElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'relativehumidity2M',
@@ -4073,7 +4253,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MLengthEqualTo(int length) {
+      relativehumidity2MLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'relativehumidity2M',
@@ -4086,7 +4266,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MIsEmpty() {
+      relativehumidity2MIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'relativehumidity2M',
@@ -4099,7 +4279,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MIsNotEmpty() {
+      relativehumidity2MIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'relativehumidity2M',
@@ -4112,10 +4292,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      relativehumidity2MLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'relativehumidity2M',
@@ -4128,10 +4308,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      relativehumidity2MLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'relativehumidity2M',
@@ -4144,12 +4324,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  relativehumidity2MLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      relativehumidity2MLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'relativehumidity2M',
@@ -4162,7 +4342,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseIsNull() {
+      sunriseIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'sunrise',
@@ -4171,7 +4351,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseIsNotNull() {
+      sunriseIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'sunrise',
@@ -4180,10 +4360,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementEqualTo(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      sunriseElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'sunrise',
@@ -4194,11 +4374,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementGreaterThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      sunriseElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -4210,11 +4390,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementLessThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      sunriseElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -4226,13 +4406,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementBetween(
-      String lower,
-      String upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+      sunriseElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'sunrise',
@@ -4246,10 +4426,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      sunriseElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'sunrise',
@@ -4260,10 +4440,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      sunriseElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'sunrise',
@@ -4274,7 +4454,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementContains(String value, {bool caseSensitive = true}) {
+      sunriseElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'sunrise',
@@ -4285,7 +4465,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementMatches(String pattern, {bool caseSensitive = true}) {
+      sunriseElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'sunrise',
@@ -4296,7 +4476,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementIsEmpty() {
+      sunriseElementIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'sunrise',
@@ -4306,7 +4486,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseElementIsNotEmpty() {
+      sunriseElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'sunrise',
@@ -4316,7 +4496,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseLengthEqualTo(int length) {
+      sunriseLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunrise',
@@ -4329,7 +4509,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseIsEmpty() {
+      sunriseIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunrise',
@@ -4342,7 +4522,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseIsNotEmpty() {
+      sunriseIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunrise',
@@ -4355,10 +4535,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      sunriseLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunrise',
@@ -4371,10 +4551,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      sunriseLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunrise',
@@ -4387,12 +4567,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunriseLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      sunriseLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunrise',
@@ -4413,7 +4593,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetIsNotNull() {
+      sunsetIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'sunset',
@@ -4422,10 +4602,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementEqualTo(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      sunsetElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'sunset',
@@ -4436,11 +4616,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementGreaterThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      sunsetElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -4452,11 +4632,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementLessThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      sunsetElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -4468,13 +4648,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementBetween(
-      String lower,
-      String upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+      sunsetElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'sunset',
@@ -4488,10 +4668,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      sunsetElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'sunset',
@@ -4502,10 +4682,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      sunsetElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'sunset',
@@ -4516,7 +4696,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementContains(String value, {bool caseSensitive = true}) {
+      sunsetElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'sunset',
@@ -4527,7 +4707,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementMatches(String pattern, {bool caseSensitive = true}) {
+      sunsetElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'sunset',
@@ -4538,7 +4718,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementIsEmpty() {
+      sunsetElementIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'sunset',
@@ -4548,7 +4728,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetElementIsNotEmpty() {
+      sunsetElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'sunset',
@@ -4558,7 +4738,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetLengthEqualTo(int length) {
+      sunsetLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunset',
@@ -4571,7 +4751,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetIsEmpty() {
+      sunsetIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunset',
@@ -4584,7 +4764,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetIsNotEmpty() {
+      sunsetIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunset',
@@ -4597,10 +4777,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      sunsetLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunset',
@@ -4613,10 +4793,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      sunsetLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunset',
@@ -4629,12 +4809,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  sunsetLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      sunsetLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'sunset',
@@ -4647,7 +4827,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureIsNull() {
+      surfacePressureIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'surfacePressure',
@@ -4656,7 +4836,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureIsNotNull() {
+      surfacePressureIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'surfacePressure',
@@ -4665,10 +4845,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      surfacePressureElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'surfacePressure',
@@ -4679,11 +4859,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      surfacePressureElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -4695,11 +4875,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      surfacePressureElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -4711,13 +4891,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      surfacePressureElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'surfacePressure',
@@ -4731,7 +4911,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureLengthEqualTo(int length) {
+      surfacePressureLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'surfacePressure',
@@ -4744,7 +4924,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureIsEmpty() {
+      surfacePressureIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'surfacePressure',
@@ -4757,7 +4937,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureIsNotEmpty() {
+      surfacePressureIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'surfacePressure',
@@ -4770,10 +4950,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      surfacePressureLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'surfacePressure',
@@ -4786,10 +4966,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      surfacePressureLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'surfacePressure',
@@ -4802,12 +4982,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  surfacePressureLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      surfacePressureLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'surfacePressure',
@@ -4820,7 +5000,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MIsNull() {
+      temperature2MIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'temperature2M',
@@ -4829,7 +5009,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MIsNotNull() {
+      temperature2MIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'temperature2M',
@@ -4838,10 +5018,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'temperature2M',
@@ -4852,11 +5032,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -4868,11 +5048,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -4884,13 +5064,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'temperature2M',
@@ -4904,7 +5084,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MLengthEqualTo(int length) {
+      temperature2MLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2M',
@@ -4917,7 +5097,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MIsEmpty() {
+      temperature2MIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2M',
@@ -4930,7 +5110,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MIsNotEmpty() {
+      temperature2MIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2M',
@@ -4943,10 +5123,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      temperature2MLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2M',
@@ -4959,10 +5139,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      temperature2MLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2M',
@@ -4975,12 +5155,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      temperature2MLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2M',
@@ -4993,7 +5173,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxIsNull() {
+      temperature2MMaxIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'temperature2MMax',
@@ -5002,7 +5182,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxIsNotNull() {
+      temperature2MMaxIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'temperature2MMax',
@@ -5011,10 +5191,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMaxElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'temperature2MMax',
@@ -5025,11 +5205,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMaxElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -5041,11 +5221,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMaxElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -5057,13 +5237,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMaxElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'temperature2MMax',
@@ -5077,7 +5257,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxLengthEqualTo(int length) {
+      temperature2MMaxLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMax',
@@ -5090,7 +5270,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxIsEmpty() {
+      temperature2MMaxIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMax',
@@ -5103,7 +5283,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxIsNotEmpty() {
+      temperature2MMaxIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMax',
@@ -5116,10 +5296,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      temperature2MMaxLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMax',
@@ -5132,10 +5312,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      temperature2MMaxLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMax',
@@ -5148,12 +5328,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMaxLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      temperature2MMaxLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMax',
@@ -5166,7 +5346,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinIsNull() {
+      temperature2MMinIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'temperature2MMin',
@@ -5175,7 +5355,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinIsNotNull() {
+      temperature2MMinIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'temperature2MMin',
@@ -5184,10 +5364,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMinElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'temperature2MMin',
@@ -5198,11 +5378,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMinElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -5214,11 +5394,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMinElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -5230,13 +5410,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      temperature2MMinElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'temperature2MMin',
@@ -5250,7 +5430,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinLengthEqualTo(int length) {
+      temperature2MMinLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMin',
@@ -5263,7 +5443,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinIsEmpty() {
+      temperature2MMinIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMin',
@@ -5276,7 +5456,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinIsNotEmpty() {
+      temperature2MMinIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMin',
@@ -5289,10 +5469,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      temperature2MMinLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMin',
@@ -5305,10 +5485,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      temperature2MMinLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMin',
@@ -5321,12 +5501,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  temperature2MMinLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      temperature2MMinLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'temperature2MMin',
@@ -5347,7 +5527,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeIsNotNull() {
+      timeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'time',
@@ -5356,10 +5536,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementEqualTo(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      timeElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'time',
@@ -5370,11 +5550,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementGreaterThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      timeElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -5386,11 +5566,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementLessThan(
-      String value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      timeElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -5402,13 +5582,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementBetween(
-      String lower,
-      String upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+      timeElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'time',
@@ -5422,10 +5602,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      timeElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'time',
@@ -5436,10 +5616,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      timeElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'time',
@@ -5450,7 +5630,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementContains(String value, {bool caseSensitive = true}) {
+      timeElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'time',
@@ -5461,7 +5641,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementMatches(String pattern, {bool caseSensitive = true}) {
+      timeElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'time',
@@ -5472,7 +5652,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementIsEmpty() {
+      timeElementIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'time',
@@ -5482,7 +5662,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeElementIsNotEmpty() {
+      timeElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'time',
@@ -5492,7 +5672,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeLengthEqualTo(int length) {
+      timeLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'time',
@@ -5517,7 +5697,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeIsNotEmpty() {
+      timeIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'time',
@@ -5530,10 +5710,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      timeLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'time',
@@ -5546,10 +5726,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      timeLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'time',
@@ -5562,12 +5742,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      timeLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'time',
@@ -5580,7 +5760,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyIsNull() {
+      timeDailyIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'timeDaily',
@@ -5589,7 +5769,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyIsNotNull() {
+      timeDailyIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'timeDaily',
@@ -5598,7 +5778,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyElementEqualTo(DateTime value) {
+      timeDailyElementEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'timeDaily',
@@ -5608,10 +5788,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyElementGreaterThan(
-      DateTime value, {
-        bool include = false,
-      }) {
+      timeDailyElementGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -5622,10 +5802,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyElementLessThan(
-      DateTime value, {
-        bool include = false,
-      }) {
+      timeDailyElementLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -5636,12 +5816,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyElementBetween(
-      DateTime lower,
-      DateTime upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      timeDailyElementBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'timeDaily',
@@ -5654,7 +5834,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyLengthEqualTo(int length) {
+      timeDailyLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'timeDaily',
@@ -5667,7 +5847,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyIsEmpty() {
+      timeDailyIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'timeDaily',
@@ -5680,7 +5860,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyIsNotEmpty() {
+      timeDailyIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'timeDaily',
@@ -5693,10 +5873,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      timeDailyLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'timeDaily',
@@ -5709,10 +5889,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      timeDailyLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'timeDaily',
@@ -5725,12 +5905,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timeDailyLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      timeDailyLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'timeDaily',
@@ -5743,7 +5923,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timestampIsNull() {
+      timestampIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'timestamp',
@@ -5752,7 +5932,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timestampIsNotNull() {
+      timestampIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'timestamp',
@@ -5761,7 +5941,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timestampEqualTo(DateTime? value) {
+      timestampEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'timestamp',
@@ -5771,10 +5951,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timestampGreaterThan(
-      DateTime? value, {
-        bool include = false,
-      }) {
+      timestampGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -5785,10 +5965,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timestampLessThan(
-      DateTime? value, {
-        bool include = false,
-      }) {
+      timestampLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -5799,12 +5979,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timestampBetween(
-      DateTime? lower,
-      DateTime? upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      timestampBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'timestamp',
@@ -5817,7 +5997,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneIsNull() {
+      timezoneIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'timezone',
@@ -5826,7 +6006,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneIsNotNull() {
+      timezoneIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'timezone',
@@ -5835,9 +6015,9 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> timezoneEqualTo(
-      String? value, {
-        bool caseSensitive = true,
-      }) {
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'timezone',
@@ -5848,11 +6028,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneGreaterThan(
-      String? value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      timezoneGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -5864,11 +6044,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneLessThan(
-      String? value, {
-        bool include = false,
-        bool caseSensitive = true,
-      }) {
+      timezoneLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -5880,12 +6060,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition> timezoneBetween(
-      String? lower,
-      String? upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        bool caseSensitive = true,
-      }) {
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'timezone',
@@ -5899,10 +6079,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneStartsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      timezoneStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
         property: r'timezone',
@@ -5913,10 +6093,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneEndsWith(
-      String value, {
-        bool caseSensitive = true,
-      }) {
+      timezoneEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
         property: r'timezone',
@@ -5927,7 +6107,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneContains(String value, {bool caseSensitive = true}) {
+      timezoneContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'timezone',
@@ -5950,7 +6130,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneIsEmpty() {
+      timezoneIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'timezone',
@@ -5960,7 +6140,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  timezoneIsNotEmpty() {
+      timezoneIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'timezone',
@@ -5970,7 +6150,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexIsNull() {
+      uvIndexIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'uvIndex',
@@ -5979,7 +6159,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexIsNotNull() {
+      uvIndexIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'uvIndex',
@@ -5988,10 +6168,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'uvIndex',
@@ -6002,11 +6182,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -6018,11 +6198,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -6034,13 +6214,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'uvIndex',
@@ -6054,7 +6234,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexLengthEqualTo(int length) {
+      uvIndexLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndex',
@@ -6067,7 +6247,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexIsEmpty() {
+      uvIndexIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndex',
@@ -6080,7 +6260,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexIsNotEmpty() {
+      uvIndexIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndex',
@@ -6093,10 +6273,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      uvIndexLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndex',
@@ -6109,10 +6289,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      uvIndexLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndex',
@@ -6125,12 +6305,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      uvIndexLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndex',
@@ -6143,7 +6323,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxIsNull() {
+      uvIndexMaxIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'uvIndexMax',
@@ -6152,7 +6332,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxIsNotNull() {
+      uvIndexMaxIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'uvIndexMax',
@@ -6161,10 +6341,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexMaxElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'uvIndexMax',
@@ -6175,11 +6355,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexMaxElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -6191,11 +6371,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexMaxElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -6207,13 +6387,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      uvIndexMaxElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'uvIndexMax',
@@ -6227,7 +6407,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxLengthEqualTo(int length) {
+      uvIndexMaxLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndexMax',
@@ -6240,7 +6420,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxIsEmpty() {
+      uvIndexMaxIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndexMax',
@@ -6253,7 +6433,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxIsNotEmpty() {
+      uvIndexMaxIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndexMax',
@@ -6266,10 +6446,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      uvIndexMaxLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndexMax',
@@ -6282,10 +6462,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      uvIndexMaxLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndexMax',
@@ -6298,12 +6478,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  uvIndexMaxLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      uvIndexMaxLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'uvIndexMax',
@@ -6316,7 +6496,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityIsNull() {
+      visibilityIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'visibility',
@@ -6325,7 +6505,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityIsNotNull() {
+      visibilityIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'visibility',
@@ -6334,10 +6514,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      visibilityElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'visibility',
@@ -6348,11 +6528,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      visibilityElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -6364,11 +6544,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      visibilityElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -6380,13 +6560,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      visibilityElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'visibility',
@@ -6400,7 +6580,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityLengthEqualTo(int length) {
+      visibilityLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'visibility',
@@ -6413,7 +6593,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityIsEmpty() {
+      visibilityIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'visibility',
@@ -6426,7 +6606,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityIsNotEmpty() {
+      visibilityIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'visibility',
@@ -6439,10 +6619,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      visibilityLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'visibility',
@@ -6455,10 +6635,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      visibilityLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'visibility',
@@ -6471,12 +6651,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  visibilityLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      visibilityLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'visibility',
@@ -6489,7 +6669,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeIsNull() {
+      weathercodeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'weathercode',
@@ -6498,7 +6678,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeIsNotNull() {
+      weathercodeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'weathercode',
@@ -6507,7 +6687,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeElementEqualTo(int value) {
+      weathercodeElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'weathercode',
@@ -6517,10 +6697,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      weathercodeElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -6531,10 +6711,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      weathercodeElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -6545,12 +6725,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      weathercodeElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'weathercode',
@@ -6563,7 +6743,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeLengthEqualTo(int length) {
+      weathercodeLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercode',
@@ -6576,7 +6756,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeIsEmpty() {
+      weathercodeIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercode',
@@ -6589,7 +6769,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeIsNotEmpty() {
+      weathercodeIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercode',
@@ -6602,10 +6782,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      weathercodeLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercode',
@@ -6618,10 +6798,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      weathercodeLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercode',
@@ -6634,12 +6814,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      weathercodeLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercode',
@@ -6652,7 +6832,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyIsNull() {
+      weathercodeDailyIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'weathercodeDaily',
@@ -6661,7 +6841,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyIsNotNull() {
+      weathercodeDailyIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'weathercodeDaily',
@@ -6670,7 +6850,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyElementEqualTo(int value) {
+      weathercodeDailyElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'weathercodeDaily',
@@ -6680,10 +6860,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      weathercodeDailyElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -6694,10 +6874,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      weathercodeDailyElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -6708,12 +6888,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      weathercodeDailyElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'weathercodeDaily',
@@ -6726,7 +6906,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyLengthEqualTo(int length) {
+      weathercodeDailyLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercodeDaily',
@@ -6739,7 +6919,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyIsEmpty() {
+      weathercodeDailyIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercodeDaily',
@@ -6752,7 +6932,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyIsNotEmpty() {
+      weathercodeDailyIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercodeDaily',
@@ -6765,10 +6945,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      weathercodeDailyLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercodeDaily',
@@ -6781,10 +6961,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      weathercodeDailyLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercodeDaily',
@@ -6797,12 +6977,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  weathercodeDailyLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      weathercodeDailyLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'weathercodeDaily',
@@ -6815,7 +6995,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MIsNull() {
+      winddirection10MIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'winddirection10M',
@@ -6824,7 +7004,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MIsNotNull() {
+      winddirection10MIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'winddirection10M',
@@ -6833,7 +7013,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MElementEqualTo(int value) {
+      winddirection10MElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'winddirection10M',
@@ -6843,10 +7023,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      winddirection10MElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -6857,10 +7037,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      winddirection10MElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -6871,12 +7051,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      winddirection10MElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'winddirection10M',
@@ -6889,7 +7069,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MLengthEqualTo(int length) {
+      winddirection10MLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10M',
@@ -6902,7 +7082,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MIsEmpty() {
+      winddirection10MIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10M',
@@ -6915,7 +7095,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MIsNotEmpty() {
+      winddirection10MIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10M',
@@ -6928,10 +7108,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      winddirection10MLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10M',
@@ -6944,10 +7124,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      winddirection10MLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10M',
@@ -6960,12 +7140,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      winddirection10MLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10M',
@@ -6978,7 +7158,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantIsNull() {
+      winddirection10MDominantIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'winddirection10MDominant',
@@ -6987,7 +7167,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantIsNotNull() {
+      winddirection10MDominantIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'winddirection10MDominant',
@@ -6996,7 +7176,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantElementEqualTo(int value) {
+      winddirection10MDominantElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'winddirection10MDominant',
@@ -7006,10 +7186,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantElementGreaterThan(
-      int value, {
-        bool include = false,
-      }) {
+      winddirection10MDominantElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -7020,10 +7200,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantElementLessThan(
-      int value, {
-        bool include = false,
-      }) {
+      winddirection10MDominantElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -7034,12 +7214,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantElementBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      winddirection10MDominantElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'winddirection10MDominant',
@@ -7052,7 +7232,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantLengthEqualTo(int length) {
+      winddirection10MDominantLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10MDominant',
@@ -7065,7 +7245,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantIsEmpty() {
+      winddirection10MDominantIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10MDominant',
@@ -7078,7 +7258,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantIsNotEmpty() {
+      winddirection10MDominantIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10MDominant',
@@ -7091,10 +7271,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      winddirection10MDominantLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10MDominant',
@@ -7107,10 +7287,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      winddirection10MDominantLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10MDominant',
@@ -7123,12 +7303,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  winddirection10MDominantLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      winddirection10MDominantLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'winddirection10MDominant',
@@ -7141,7 +7321,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MIsNull() {
+      windgusts10MIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'windgusts10M',
@@ -7150,7 +7330,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MIsNotNull() {
+      windgusts10MIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'windgusts10M',
@@ -7159,10 +7339,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'windgusts10M',
@@ -7173,11 +7353,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -7189,11 +7369,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -7205,13 +7385,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'windgusts10M',
@@ -7225,7 +7405,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MLengthEqualTo(int length) {
+      windgusts10MLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10M',
@@ -7238,7 +7418,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MIsEmpty() {
+      windgusts10MIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10M',
@@ -7251,7 +7431,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MIsNotEmpty() {
+      windgusts10MIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10M',
@@ -7264,10 +7444,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      windgusts10MLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10M',
@@ -7280,10 +7460,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      windgusts10MLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10M',
@@ -7296,12 +7476,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      windgusts10MLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10M',
@@ -7314,7 +7494,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxIsNull() {
+      windgusts10MMaxIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'windgusts10MMax',
@@ -7323,7 +7503,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxIsNotNull() {
+      windgusts10MMaxIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'windgusts10MMax',
@@ -7332,10 +7512,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MMaxElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'windgusts10MMax',
@@ -7346,11 +7526,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MMaxElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -7362,11 +7542,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MMaxElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -7378,13 +7558,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      windgusts10MMaxElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'windgusts10MMax',
@@ -7398,7 +7578,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxLengthEqualTo(int length) {
+      windgusts10MMaxLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10MMax',
@@ -7411,7 +7591,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxIsEmpty() {
+      windgusts10MMaxIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10MMax',
@@ -7424,7 +7604,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxIsNotEmpty() {
+      windgusts10MMaxIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10MMax',
@@ -7437,10 +7617,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      windgusts10MMaxLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10MMax',
@@ -7453,10 +7633,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      windgusts10MMaxLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10MMax',
@@ -7469,12 +7649,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windgusts10MMaxLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      windgusts10MMaxLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windgusts10MMax',
@@ -7487,7 +7667,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MIsNull() {
+      windspeed10MIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'windspeed10M',
@@ -7496,7 +7676,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MIsNotNull() {
+      windspeed10MIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'windspeed10M',
@@ -7505,10 +7685,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'windspeed10M',
@@ -7519,11 +7699,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -7535,11 +7715,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -7551,13 +7731,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'windspeed10M',
@@ -7571,7 +7751,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MLengthEqualTo(int length) {
+      windspeed10MLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10M',
@@ -7584,7 +7764,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MIsEmpty() {
+      windspeed10MIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10M',
@@ -7597,7 +7777,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MIsNotEmpty() {
+      windspeed10MIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10M',
@@ -7610,10 +7790,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      windspeed10MLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10M',
@@ -7626,10 +7806,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      windspeed10MLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10M',
@@ -7642,12 +7822,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      windspeed10MLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10M',
@@ -7660,7 +7840,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxIsNull() {
+      windspeed10MMaxIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'windspeed10MMax',
@@ -7669,7 +7849,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxIsNotNull() {
+      windspeed10MMaxIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'windspeed10MMax',
@@ -7678,10 +7858,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxElementEqualTo(
-      double value, {
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MMaxElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'windspeed10MMax',
@@ -7692,11 +7872,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxElementGreaterThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MMaxElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
@@ -7708,11 +7888,11 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxElementLessThan(
-      double value, {
-        bool include = false,
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MMaxElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
@@ -7724,13 +7904,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxElementBetween(
-      double lower,
-      double upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-        double epsilon = Query.epsilon,
-      }) {
+      windspeed10MMaxElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'windspeed10MMax',
@@ -7744,7 +7924,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxLengthEqualTo(int length) {
+      windspeed10MMaxLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10MMax',
@@ -7757,7 +7937,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxIsEmpty() {
+      windspeed10MMaxIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10MMax',
@@ -7770,7 +7950,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxIsNotEmpty() {
+      windspeed10MMaxIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10MMax',
@@ -7783,10 +7963,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxLengthLessThan(
-      int length, {
-        bool include = false,
-      }) {
+      windspeed10MMaxLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10MMax',
@@ -7799,10 +7979,10 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxLengthGreaterThan(
-      int length, {
-        bool include = false,
-      }) {
+      windspeed10MMaxLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10MMax',
@@ -7815,12 +7995,12 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QAfterFilterCondition>
-  windspeed10MMaxLengthBetween(
-      int lower,
-      int upper, {
-        bool includeLower = true,
-        bool includeUpper = true,
-      }) {
+      windspeed10MMaxLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'windspeed10MMax',
@@ -7834,13 +8014,13 @@ on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {
 }
 
 extension WeatherCardQueryObject
-on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {}
+    on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {}
 
 extension WeatherCardQueryLinks
-on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {}
+    on QueryBuilder<WeatherCard, WeatherCard, QFilterCondition> {}
 
 extension WeatherCardQuerySortBy
-on QueryBuilder<WeatherCard, WeatherCard, QSortBy> {
+    on QueryBuilder<WeatherCard, WeatherCard, QSortBy> {
   QueryBuilder<WeatherCard, WeatherCard, QAfterSortBy> sortByCity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'city', Sort.asc);
@@ -7915,7 +8095,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QSortBy> {
 }
 
 extension WeatherCardQuerySortThenBy
-on QueryBuilder<WeatherCard, WeatherCard, QSortThenBy> {
+    on QueryBuilder<WeatherCard, WeatherCard, QSortThenBy> {
   QueryBuilder<WeatherCard, WeatherCard, QAfterSortBy> thenByCity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'city', Sort.asc);
@@ -8002,23 +8182,23 @@ on QueryBuilder<WeatherCard, WeatherCard, QSortThenBy> {
 }
 
 extension WeatherCardQueryWhereDistinct
-on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
+    on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByApparentTemperature() {
+      distinctByApparentTemperature() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'apparentTemperature');
     });
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByApparentTemperatureMax() {
+      distinctByApparentTemperatureMax() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'apparentTemperatureMax');
     });
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByApparentTemperatureMin() {
+      distinctByApparentTemperatureMin() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'apparentTemperatureMin');
     });
@@ -8045,7 +8225,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByEvapotranspiration() {
+      distinctByEvapotranspiration() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'evapotranspiration');
     });
@@ -8070,14 +8250,14 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByPrecipitationProbabilityMax() {
+      distinctByPrecipitationProbabilityMax() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'precipitationProbabilityMax');
     });
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByPrecipitationSum() {
+      distinctByPrecipitationSum() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'precipitationSum');
     });
@@ -8096,7 +8276,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByRelativehumidity2M() {
+      distinctByRelativehumidity2M() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'relativehumidity2M');
     });
@@ -8115,7 +8295,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctBySurfacePressure() {
+      distinctBySurfacePressure() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'surfacePressure');
     });
@@ -8128,14 +8308,14 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByTemperature2MMax() {
+      distinctByTemperature2MMax() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'temperature2MMax');
     });
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByTemperature2MMin() {
+      distinctByTemperature2MMin() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'temperature2MMin');
     });
@@ -8191,21 +8371,21 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByWeathercodeDaily() {
+      distinctByWeathercodeDaily() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'weathercodeDaily');
     });
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByWinddirection10M() {
+      distinctByWinddirection10M() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'winddirection10M');
     });
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByWinddirection10MDominant() {
+      distinctByWinddirection10MDominant() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'winddirection10MDominant');
     });
@@ -8218,7 +8398,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByWindgusts10MMax() {
+      distinctByWindgusts10MMax() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'windgusts10MMax');
     });
@@ -8231,7 +8411,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
   }
 
   QueryBuilder<WeatherCard, WeatherCard, QDistinct>
-  distinctByWindspeed10MMax() {
+      distinctByWindspeed10MMax() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'windspeed10MMax');
     });
@@ -8239,7 +8419,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QDistinct> {
 }
 
 extension WeatherCardQueryProperty
-on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
+    on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   QueryBuilder<WeatherCard, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
@@ -8247,21 +8427,21 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  apparentTemperatureProperty() {
+      apparentTemperatureProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'apparentTemperature');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  apparentTemperatureMaxProperty() {
+      apparentTemperatureMaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'apparentTemperatureMax');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  apparentTemperatureMinProperty() {
+      apparentTemperatureMinProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'apparentTemperatureMin');
     });
@@ -8286,7 +8466,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  evapotranspirationProperty() {
+      evapotranspirationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'evapotranspiration');
     });
@@ -8305,21 +8485,21 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  precipitationProperty() {
+      precipitationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'precipitation');
     });
   }
 
   QueryBuilder<WeatherCard, List<int>?, QQueryOperations>
-  precipitationProbabilityMaxProperty() {
+      precipitationProbabilityMaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'precipitationProbabilityMax');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  precipitationSumProperty() {
+      precipitationSumProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'precipitationSum');
     });
@@ -8338,7 +8518,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<int>?, QQueryOperations>
-  relativehumidity2MProperty() {
+      relativehumidity2MProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'relativehumidity2M');
     });
@@ -8357,28 +8537,28 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  surfacePressureProperty() {
+      surfacePressureProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'surfacePressure');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  temperature2MProperty() {
+      temperature2MProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'temperature2M');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  temperature2MMaxProperty() {
+      temperature2MMaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'temperature2MMax');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  temperature2MMinProperty() {
+      temperature2MMinProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'temperature2MMin');
     });
@@ -8391,7 +8571,7 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<DateTime>?, QQueryOperations>
-  timeDailyProperty() {
+      timeDailyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'timeDaily');
     });
@@ -8416,70 +8596,70 @@ on QueryBuilder<WeatherCard, WeatherCard, QQueryProperty> {
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  uvIndexMaxProperty() {
+      uvIndexMaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'uvIndexMax');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  visibilityProperty() {
+      visibilityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'visibility');
     });
   }
 
   QueryBuilder<WeatherCard, List<int>?, QQueryOperations>
-  weathercodeProperty() {
+      weathercodeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'weathercode');
     });
   }
 
   QueryBuilder<WeatherCard, List<int>?, QQueryOperations>
-  weathercodeDailyProperty() {
+      weathercodeDailyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'weathercodeDaily');
     });
   }
 
   QueryBuilder<WeatherCard, List<int>?, QQueryOperations>
-  winddirection10MProperty() {
+      winddirection10MProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'winddirection10M');
     });
   }
 
   QueryBuilder<WeatherCard, List<int>?, QQueryOperations>
-  winddirection10MDominantProperty() {
+      winddirection10MDominantProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'winddirection10MDominant');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  windgusts10MProperty() {
+      windgusts10MProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'windgusts10M');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  windgusts10MMaxProperty() {
+      windgusts10MMaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'windgusts10MMax');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  windspeed10MProperty() {
+      windspeed10MProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'windspeed10M');
     });
   }
 
   QueryBuilder<WeatherCard, List<double>?, QQueryOperations>
-  windspeed10MMaxProperty() {
+      windspeed10MMaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'windspeed10MMax');
     });

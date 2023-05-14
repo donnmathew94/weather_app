@@ -4,11 +4,17 @@ import 'package:get/get.dart';
 
 class Status {
   String getImageNow(String weather, int isDay) {
-
     var weatherIcon = "assets/images/clear.png";
     try {
-      weatherIcon =
-          "assets/images/${weather.replaceAll(' ', '').toLowerCase()}.png";
+      if (isDay == 0 && (weather == "Clear"||weather == "Mist")) {
+        weatherIcon =
+            weatherIcon =
+        "assets/images/moon.png";
+      }
+      else {
+        weatherIcon =
+        "assets/images/${weather.replaceAll(' ', '').toLowerCase()}.png";
+      }
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -113,16 +119,16 @@ class Status {
     }
   }
 
-  String getImageToday(
-      int weather, String time, String timeDay, String timeNight) {
+  String getImageToday(int weather, String time, String timeDay,
+      String timeNight) {
     final currentTime = DateTime.parse(time);
     final day = DateTime.parse(timeDay);
     final night = DateTime.parse(timeNight);
 
     final dayTime =
-        DateTime(day.year, day.month, day.day, day.hour, day.minute);
+    DateTime(day.year, day.month, day.day, day.hour, day.minute);
     final nightTime =
-        DateTime(night.year, night.month, night.day, night.hour, night.minute);
+    DateTime(night.year, night.month, night.day, night.hour, night.minute);
 
     switch (weather) {
       case 0:
