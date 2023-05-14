@@ -36,7 +36,7 @@ class LocationController extends GetxController {
 
   Future<void> setLocation() async {
     isLoading.value = true;
-    print("setLocation");
+    debugPrint("setLocation");
     _degreeUnit.value = settings.degrees;
     await getCurrentLocation();
   }
@@ -53,15 +53,24 @@ class LocationController extends GetxController {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      Get.snackbar(
+        'Location',
+        'Location permissions are permanently denied, please enable it in settings.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+        margin: const EdgeInsets.only(bottom: 10, left: 5, right: 5),
+        icon: const Icon(Iconsax.location),
+        shouldIconPulse: true,
+      );
       return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+          'Location permissions are permanently denied, please enable it in settings.');
     }
     return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<void> getCurrentLocation() async {
-    print("getCurrentLocation");
+    debugPrint("getCurrentLocation");
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (await isDeviceConnectedNotifier.value && serviceEnabled) {
@@ -75,14 +84,22 @@ class LocationController extends GetxController {
       _city.value = '${place.locality}';
       getLocationApi(position.latitude, position.longitude);
     } else if (!await isDeviceConnectedNotifier.value && serviceEnabled) {
-      print("Service not available");
+      debugPrint("Service not available");
       Get.snackbar(
         'No Internet',
         'Turn on the Internet to get meteorological data.',
+        duration: const Duration(seconds: 30),
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.only(bottom: 10, left: 5, right: 5),
         icon: const Icon(Iconsax.wifi),
         shouldIconPulse: true,
+        mainButton: TextButton(
+          child: const Text('Retry'),
+          onPressed: () {
+            setLocation();
+            Get.back();
+          },
+        ),
       );
     } else if (await isDeviceConnectedNotifier.value && !serviceEnabled) {
       Get.snackbar(
@@ -104,13 +121,21 @@ class LocationController extends GetxController {
       Get.snackbar(
         'No Internet',
         'Turn on the Internet to get meteorological data.',
+        duration: const Duration(seconds: 30),
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.only(bottom: 10, left: 5, right: 5),
         icon: const Icon(Iconsax.wifi),
         shouldIconPulse: true,
+        mainButton: TextButton(
+          child: const Text('Retry'),
+          onPressed: () {
+            setLocation();
+            Get.back();
+          },
+        ),
       );
       Get.snackbar(
-       'Location',
+        'Location',
         'Enable the location service to get weather data for the current location.',
         duration: const Duration(seconds: 5),
         mainButton: TextButton(
@@ -158,5 +183,4 @@ class LocationController extends GetxController {
     }
     return [];
   }
-
 }

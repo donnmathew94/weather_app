@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (result != null) {
                 await locationController.getLocationByName(result);
               }
-              print("onPressed $result");
+              debugPrint("onPressed $result");
             },
           ),
         ],
