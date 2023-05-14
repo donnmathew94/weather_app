@@ -18,17 +18,33 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   int tabIndex = 0;
   final locationController = Get.put(LocationController());
 
   @override
   void initState() {
+    WidgetsBinding.instance?.addObserver(this);
     if (kDebugMode) {
       print("initState defaultLocation $settings.defaultLocation");
     }
     getLocationByPreference();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("===================>>>>>$state");
+    if (state == AppLifecycleState.resumed) {
+      getLocationByPreference();
+    }
   }
 
   void getLocationByPreference() async {
